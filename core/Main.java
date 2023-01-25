@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         HashMap<String, Integer> wins = new HashMap<String, Integer>();
         // Add robots to the game
-        int games = 10_000;
+        int games = 100;
         for (int i = 0; i < games; i++) {
             // Game.addRobot(new DefendaBot());
             Game.addRobot(new MyRobot1());
@@ -21,8 +21,10 @@ public class Main {
             Game.run();
 
             // Get the winner
-            String winner = Game.getWinner().name;
-            wins.put(winner, wins.getOrDefault(winner, 0) + 1);
+            BasicRobot winner = Game.getWinner();
+            if (winner != null){
+                wins.put(winner.name, wins.getOrDefault(winner.name, 0) + 1);                
+            }
 
             // reset the game unless it's the last game
             if (i != games - 1) {

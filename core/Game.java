@@ -110,6 +110,15 @@ public class Game {
             }
 
             // Remove dead robots along with their handlers
+            if (robots.size() == toRemove.size()){
+                System.out.println("All robots have died. Ending game.");
+                running = false;
+                for (BasicRobot robot : toRemove) {
+                    robots.remove(robot);
+                    robotHandlers.remove(robot);
+                }
+                return;
+            }
             for (BasicRobot robot : toRemove) {
                 robots.remove(robot);
                 robotHandlers.remove(robot);

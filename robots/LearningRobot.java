@@ -14,12 +14,10 @@ public class LearningRobot extends BasicRobot {
     public void onTurn(double points) {
         // If we have no data, just use the default 1/3
         if (currentPointPercents.size() == 0) {
-            Game.takeTurn(this, (int) (points * 0.33), (int) (points * 0.33), (int) (points * 0.33));
             // fill the currentPointPercents with the default 1/3
-            currentPointPercents.put("defense", 33);
-            currentPointPercents.put("strength", 33);
-            currentPointPercents.put("stamina", 33);
-            return;
+            currentPointPercents.put("defense", 80);
+            currentPointPercents.put("strength", 20);
+            currentPointPercents.put("stamina", 0);
         }
 
         // If we have data, use it

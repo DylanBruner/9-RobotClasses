@@ -4,7 +4,10 @@ import core.Game;
 
 public class MyRobot1 extends BasicRobot {
     public void onTurn(double points) {
+
         // put 80% of our points into defense and 20% into strength
         Game.takeTurn(this, (int) (points * 0.05), (int) (points * 0.95), 0);
+        // Game.takeTurn(this, 0, 0, 0);
+        // random chance to not do anything
     }
 }
