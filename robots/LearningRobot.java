@@ -13,8 +13,8 @@ import core.Game;
 
 public class LearningRobot extends BasicRobot {
     // Starting stats
-    static final int BASE_STRENGTH = 20;
-    static final int BASE_DEFENSE  = 80;
+    static final int BASE_STRENGTH = 10;
+    static final int BASE_DEFENSE  = 90;
     static final int BASE_STAMINA  = 0;
 
     
@@ -49,6 +49,7 @@ public class LearningRobot extends BasicRobot {
 
     public void onDeath(){
         if (selectedSnapshot == null){selectedSnapshot = new Snapshot();}
+        if (lastSnapshot == null){lastSnapshot = new Snapshot();}
 
         if (Game.turnCounter > lastTurnsSurvived){
             lastTurnsSurvived = Game.turnCounter;
@@ -61,12 +62,12 @@ public class LearningRobot extends BasicRobot {
         selectedSnapshot = selectedSnapshot.mutate();
     }
 
-    public static void onGameEnd(){
+    public void onGameEnd(){
         // print out the selected snapshot
-        System.out.println("===== [SNAPSHOT] =====");
-        System.out.println("Strength: " + selectedSnapshot.strength);
-        System.out.println("Defense: " + selectedSnapshot.defense);
-        System.out.println("Stamina: " + selectedSnapshot.stamina);
+        System.out.println("Best snapshot:");
+        System.out.println("  Strength: " + selectedSnapshot.strength);
+        System.out.println("  Defense: " + selectedSnapshot.defense);
+        System.out.println("  Stamina: " + selectedSnapshot.stamina);
     }
 
     class Snapshot {
@@ -83,7 +84,6 @@ public class LearningRobot extends BasicRobot {
             int modifier = (int) (Math.random() * 21) - 10;// -10 to 10
             int stat     = (int) (Math.random() * 3);// 0 to 2
 
-            // Modify the selected stat by modifier and then clamp it to 0 to 100, modify the other two stats by the difference
             switch (stat) {
                 case 0:
                     newSnapshot.strength = Math.max(0, Math.min(100, newSnapshot.strength + modifier));

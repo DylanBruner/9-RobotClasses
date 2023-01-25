@@ -10,6 +10,11 @@ public class Game {
     static boolean running = true;
     static HashMap<BasicRobot, RobotHandler> robotHandlers = new HashMap<BasicRobot, RobotHandler>();
 
+    static final String RED = "\u001B[31m";
+
+    static FancyDisplay display = new FancyDisplay();
+    static boolean DISABLE_PRINTING = false;
+
     public static int turnCounter = 0;
 
     // Config
@@ -49,7 +54,7 @@ public class Game {
             Game.turnCounter=turnNumber;
             // 75 - 100 base points, 5% chance of adding +250
             allotedPoints = (int) (75 + (Math.random() * 25) + (Math.random() < 0.05 ? 250 : 0));
-            System.out.println("===== [TURN " + turnNumber++ + " - ("+allotedPoints+" points)] =====");
+            if (!Game.DISABLE_PRINTING) System.out.println(RED+"===== [TURN " + turnNumber++ + " - ("+allotedPoints+" points)] ====="+FancyDisplay.RESET);
 
             // Phase one of the turn
             for (BasicRobot robot : robots) {
@@ -63,7 +68,7 @@ public class Game {
 
                 // Check for winner
                 if (robots.size() == 1) {
-                    System.out.println(robots.get(0).name + " has won the game!");
+                    if (!Game.DISABLE_PRINTING) System.out.println(robots.get(0).name + " has won the game!");
                     running = false;
                     robots.get(0).onWin();
                     return;
@@ -72,7 +77,7 @@ public class Game {
 
             // Randomly select two robots to fight
             if (robots.size() < 2) {
-                System.out.println("Not enough robots to fight. Ending game.");
+                if (!Game.DISABLE_PRINTING) System.out.println("Not enough robots to fight. Ending game.");
                 running = false; return;
             }
             BasicRobot robot1 = robots.get((int) (Math.random() * robots.size()));
@@ -97,7 +102,7 @@ public class Game {
                     toRemove.add(robot);
                 } else {
                     if (handler.health <= 0) {
-                        System.out.println(robot.name + " has died.");
+                        if (!Game.DISABLE_PRINTING) System.out.println(robot.name + " has died.");
                         try {
                             robot.onDeath();
                         } catch (Exception e) {
@@ -111,7 +116,7 @@ public class Game {
 
             // Remove dead robots along with their handlers
             if (robots.size() == toRemove.size()){
-                System.out.println("All robots have died. Ending game.");
+                if (!Game.DISABLE_PRINTING) System.out.println("All robots have died. Ending game.");
                 running = false;
                 for (BasicRobot robot : toRemove) {
                     robots.remove(robot);
@@ -123,6 +128,7 @@ public class Game {
                 robots.remove(robot);
                 robotHandlers.remove(robot);
             }
+            // System.out.println(Game.display);
         }
     }
 

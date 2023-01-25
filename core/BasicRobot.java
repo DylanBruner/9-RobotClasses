@@ -13,6 +13,7 @@ public class BasicRobot {
     public void onDodge(){}
     public void onHit(double damage){}
     public void onWin(){}
+    public void onGameEnd(){}
 
     // Only used locally
     public double getHealth(){return Game.robotHandlers.get(this).health;}

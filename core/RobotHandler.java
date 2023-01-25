@@ -6,6 +6,8 @@ public class RobotHandler {
     boolean alive = true;
     double health = 100;
 
+    public static final String YELLOW = "\u001B[33m";
+
     private double defensePoints  = 0;
     private double strengthPoints = 0;
     private double staminaPoints  = 0;
@@ -56,6 +58,6 @@ public class RobotHandler {
         // Give the attacker 10% of the damage they did as health
         attackerHandler.health += damage * 0.10;
    
-        System.out.println("[GAME::INFO] " + attacker.name + " attacked " + this.robot.name + " for " + String.format("%.2f", damage) + " damage. " + this.robot.name + " has " + String.format("%.2f", this.health) + " health left.");
+        if (!Game.DISABLE_PRINTING) System.out.println(YELLOW + "[GAME::INFO] " + attacker.name + " attacked " + this.robot.name + " for " + String.format("%.2f", damage) + " damage. " + this.robot.name + " has " + String.format("%.2f", this.health) + " health left." + "\u001B[0m");
     }
 }
