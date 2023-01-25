@@ -8,7 +8,6 @@ import core.Game;
 /*
  * TODO
  *  - Mutate the snapshot based on better stats like how much damage was done, how much damage was taken, how many turns survived, etc. 
- * 
 */
 
 public class LearningRobot extends BasicRobot {
