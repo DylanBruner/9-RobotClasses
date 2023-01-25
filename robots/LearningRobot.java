@@ -5,71 +5,104 @@ import java.util.HashMap;
 import core.BasicRobot;
 import core.Game;
 
-public class LearningRobot extends BasicRobot {
-    static HashMap<String, Integer> currentPointPercents = new HashMap<String, Integer>();
-    static HashMap<String, Integer> lastPointPercents    = new HashMap<String, Integer>();
-    static String lastModified   = null;
-    static int lastTurnsSurvived = 0;
+/*
+ * TODO
+ *  - Mutate the snapshot based on better stats like how much damage was done, how much damage was taken, how many turns survived, etc. 
+ * 
+*/
 
-    public void onTurn(double points) {
-        // If we have no data, just use the default 1/3
-        if (currentPointPercents.size() == 0) {
-            // fill the currentPointPercents with the default 1/3
-            currentPointPercents.put("defense", 80);
-            currentPointPercents.put("strength", 20);
-            currentPointPercents.put("stamina", 0);
+public class LearningRobot extends BasicRobot {
+    // Starting stats
+    static final int BASE_STRENGTH = 20;
+    static final int BASE_DEFENSE  = 80;
+    static final int BASE_STAMINA  = 0;
+
+    
+    static HashMap<Integer, Snapshot> snapshots = new HashMap<Integer, Snapshot>();
+    static Snapshot selectedSnapshot            = null;
+    static Snapshot lastSnapshot                = null;
+    static int lastTurnsSurvived                = 0;
+
+    public void onTurn(double points){
+        if (selectedSnapshot == null){selectedSnapshot = new Snapshot();}
+
+        // calculate the amount of points to spend on each stat
+        // selectedSnapshot.strength, selectedSnapshot.defense, selectedSnapshot.stamina each contain a percentage of the total points 0 to 100
+        // make sure to round down so that the total points spent is always equal to the total points available
+        int strengthPoints = (int) (points * selectedSnapshot.strength / 100);
+        int defensePoints  = (int) (points * selectedSnapshot.defense  / 100);
+        int staminaPoints  = (int) (points * selectedSnapshot.stamina  / 100);
+
+        int overby = (int) (strengthPoints + defensePoints + staminaPoints - points);
+        while (overby > 0){
+            if (strengthPoints > 0){strengthPoints--; overby--;}
+            if (defensePoints  > 0){defensePoints--;  overby--;}
+            if (staminaPoints  > 0){staminaPoints--;  overby--;}
         }
 
-        // If we have data, use it
-        Game.takeTurn(this, (int) (points * currentPointPercents.get("defense") / 100.0), (int) (points * currentPointPercents.get("strength") / 100.0), (int) (points * currentPointPercents.get("stamina") / 100.0));
+        // spend the points
+        Game.takeTurn(this, strengthPoints, defensePoints, staminaPoints);
+        // Game.takeTurn(this, (int) points, 0, 0);
+        // Game.takeTurn(this, (int) (points * 0.05), (int) (points * 0.95), 0);
+
     }
 
     public void onDeath(){
-        if (lastModified == null){
-            lastPointPercents = (HashMap<String, Integer>) currentPointPercents.clone();
+        if (selectedSnapshot == null){selectedSnapshot = new Snapshot();}
 
-            // modify a random stat
-            int stat = (int) (Math.random() * 3);
-            switch (stat) {
-                case 0:
-                    lastModified = "defense";
-                    break;
-                case 1:
-                    lastModified = "strength";
-                    break;
-                case 2:
-                    lastModified = "stamina";
-                    break;
-            }
-
-            // calculate the new percentage -10-10 of the last percentage
-            int newDifference = (int) (Math.random() * 20) - 10;
-            // apply the new percentage to the stat and reverse the other two
-            switch (lastModified) {
-                case "defense":
-                    currentPointPercents.put("defense", lastPointPercents.get("defense") + newDifference);
-                    currentPointPercents.put("strength", 100 - currentPointPercents.get("defense") - currentPointPercents.get("stamina"));
-                    break;
-                case "strength":
-                    currentPointPercents.put("strength", lastPointPercents.get("strength") + newDifference);
-                    currentPointPercents.put("defense", 100 - currentPointPercents.get("strength") - currentPointPercents.get("stamina"));
-                    break;
-                case "stamina":
-                    currentPointPercents.put("stamina", lastPointPercents.get("stamina") + newDifference);
-                    currentPointPercents.put("defense", 100 - currentPointPercents.get("strength") - currentPointPercents.get("stamina"));
-                    break;
-            }
+        if (Game.turnCounter > lastTurnsSurvived){
+            lastTurnsSurvived = Game.turnCounter;
+            lastSnapshot      = selectedSnapshot.copy();
         } else {
+            selectedSnapshot = lastSnapshot.copy();
         }
+
+        // mutate the snapshot
+        selectedSnapshot = selectedSnapshot.mutate();
     }
 
     public static void onGameEnd(){
-        // print out the currents stats
-        System.out.println("===== [LEARNING ROBOT] =====");
-        // curent stats
-        System.out.println("Current stats:");
-        System.out.println("Defense: " + currentPointPercents.get("defense") + "%");
-        System.out.println("Strength: " + currentPointPercents.get("strength") + "%");
-        System.out.println("Stamina: " + currentPointPercents.get("stamina") + "%");
+        // print out the selected snapshot
+        System.out.println("===== [SNAPSHOT] =====");
+        System.out.println("Strength: " + selectedSnapshot.strength);
+        System.out.println("Defense: " + selectedSnapshot.defense);
+        System.out.println("Stamina: " + selectedSnapshot.stamina);
+    }
+
+    class Snapshot {
+        int stamina; int strength; int defense;
+        
+        public Snapshot(int strength, int defense, int stamina) {
+            this.strength = strength; this.defense = defense; this.stamina = stamina;
+        }; public Snapshot(){this(BASE_STRENGTH, BASE_DEFENSE, BASE_STAMINA);}
+        
+        Snapshot copy(){return new Snapshot(strength, defense, stamina);}
+        Snapshot mutate(){
+            Snapshot newSnapshot = selectedSnapshot.copy();
+
+            int modifier = (int) (Math.random() * 21) - 10;// -10 to 10
+            int stat     = (int) (Math.random() * 3);// 0 to 2
+
+            // Modify the selected stat by modifier and then clamp it to 0 to 100, modify the other two stats by the difference
+            switch (stat) {
+                case 0:
+                    newSnapshot.strength = Math.max(0, Math.min(100, newSnapshot.strength + modifier));
+                    newSnapshot.defense  = Math.max(0, Math.min(100, newSnapshot.defense  - modifier/2));
+                    newSnapshot.stamina  = Math.max(0, Math.min(100, newSnapshot.stamina  - modifier/2));
+                    break;
+                case 1:
+                    newSnapshot.strength = Math.max(0, Math.min(100, newSnapshot.strength - modifier/2));
+                    newSnapshot.defense  = Math.max(0, Math.min(100, newSnapshot.defense  + modifier));
+                    newSnapshot.stamina  = Math.max(0, Math.min(100, newSnapshot.stamina  - modifier/2));
+                    break;
+                case 2:
+                    newSnapshot.strength = Math.max(0, Math.min(100, newSnapshot.strength - modifier/2));
+                    newSnapshot.defense  = Math.max(0, Math.min(100, newSnapshot.defense  - modifier/2));
+                    newSnapshot.stamina  = Math.max(0, Math.min(100, newSnapshot.stamina  + modifier));
+                    break;
+            }
+
+            return newSnapshot;
+        }
     }
 }

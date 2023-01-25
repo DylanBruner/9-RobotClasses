@@ -40,13 +40,22 @@ public class RobotHandler {
             return;
         }
 
-        // Calculate damage to us and factor in defense
-        double damage = (attackerHandler.strengthPoints / Game.allotedPoints) * 25; // 0-25 damage
-        damage -= (this.defensePoints / Game.allotedPoints) * 12; // 0-20 damage reduction
+        // the attacker's strength points are (0 - 100) and the defender's defense points are (0 - 100)
+        // Calculate the damage 0-10
+        // defense should reduce the damage by 0%-60% of the damage
+        double damage = (attackerHandler.strengthPoints / Game.allotedPoints) * 10;
+        // decrease the damage by 0.6 * the defender's defense points
+        damage -= this.defensePoints * 0.07;
+        // make sure the damage is at least 0
+        if (damage < 0) damage = 0;
 
         // Apply damage
         this.health -= damage;
         robot.onHit(damage); // Doesn't apply the damage, just tells the robot it was hit
+        
+        // Give the attacker 10% of the damage they did as health
+        attackerHandler.health += damage * 0.10;
+   
         System.out.println("[GAME::INFO] " + attacker.name + " attacked " + this.robot.name + " for " + String.format("%.2f", damage) + " damage. " + this.robot.name + " has " + String.format("%.2f", this.health) + " health left.");
     }
 }

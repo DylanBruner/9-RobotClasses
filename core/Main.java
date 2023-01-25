@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         HashMap<String, Integer> wins = new HashMap<String, Integer>();
         // Add robots to the game
-        int games = 100;
+        int games = 1_000;
         for (int i = 0; i < games; i++) {
             // Game.addRobot(new DefendaBot());
             Game.addRobot(new MyRobot1());
