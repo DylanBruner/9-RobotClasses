@@ -50,7 +50,7 @@ public class RobotHandler {
         // Apply damage
         this.health -= damage;
         robot.onHit(damage); // Doesn't apply the damage, just tells the robot it was hit
-        
+
         // Give the attacker 10% of the damage they did as health
         attackerHandler.health += damage * 0.10;
    
