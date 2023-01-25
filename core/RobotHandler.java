@@ -42,12 +42,8 @@ public class RobotHandler {
             return;
         }
 
-        // the attacker's strength points are (0 - 100) and the defender's defense points are (0 - 100)
-        // Calculate the damage 0-10
-        // defense should reduce the damage by 0%-60% of the damage
         double damage = (attackerHandler.strengthPoints / Game.allotedPoints) * 10;
-        // decrease the damage by 0.6 * the defender's defense points
-        damage -= this.defensePoints * 0.07;
+        damage -= this.defensePoints * 0.07; // 0-7% damage reduction
         // make sure the damage is at least 0
         if (damage < 0) damage = 0;
 
